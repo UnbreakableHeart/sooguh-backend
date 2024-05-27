@@ -1,4 +1,4 @@
-from common_imports import logger
+from util.logger import logger
 import abc
 
 class IDataParseStrategy:

@@ -1,5 +1,5 @@
-from common_imports import logger
-from common_imports import config
+from util.logger import logger
+from util.conf import config
 import abc
 
 class IDataPortalSearcher:
