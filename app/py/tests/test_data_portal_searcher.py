@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from autoupdater.util.conf import config
 from autoupdater.util import logger
-from autoupdater.DataPortalSearcher import DataPortalSearcher
+from autoupdater.data_portal_searcher import DataPortalSearcher
 import requests
 
 class TestDataPortalSearcher(unittest.TestCase):
