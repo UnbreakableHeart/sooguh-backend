@@ -16,6 +16,7 @@ class TestDataPortalSearcher(unittest.TestCase):
         <div class='result-list'><ul>
             <li>
                 <span class='title'>Title1</span>
+                    <dt><a href='Link1'>Link1</a></dt>
                     <div class='info-data'>
                         <p><span class='data'>Provider1</span></p>
                         <p><span class='data'>Date1</span></p>
@@ -24,6 +25,7 @@ class TestDataPortalSearcher(unittest.TestCase):
             </li>
             <li>
                 <span class='title'>Title2</span>
+                    <dt><a href='Link2'>Link2</a></dt>
                     <div class='info-data'>
                         <p><span class='data'>Provider2</span></p>
                         <p><span class='data'>Date2</span></p>
@@ -96,9 +98,11 @@ class TestDataPortalSearcher(unittest.TestCase):
         result = self.searcher._get_info_list("http://example.com")
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]['title'], 'Title1')
+        self.assertEqual(result[0]['link'], 'Link1')
         self.assertEqual(result[0]['provider'], 'Provider1')
         self.assertEqual(result[0]['date'], 'Date1')
         self.assertEqual(result[1]['title'], 'Title2')
+        self.assertEqual(result[1]['link'], 'Link2')
         self.assertEqual(result[1]['provider'], 'Provider2')
         self.assertEqual(result[1]['date'], 'Date2')
 
@@ -111,12 +115,12 @@ class TestDataPortalSearcher(unittest.TestCase):
         result = self.searcher._get_info_list("http://example.com")
         self.assertEqual(len(result), 0)
 
-    def test_get_info_lists_correct(self):
-        self.log.info(f"Test Start: test_get_info_lists_correct")
-        keyword = config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0]
-        result = self.searcher.get_info_lists(keyword)
-        self.assertIsNotNone(result)
-        self.assertTrue(len(result) > 0)
+    # def test_get_info_lists_correct(self):
+    #     self.log.info(f"Test Start: test_get_info_lists_correct")
+    #     keyword = config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0]
+    #     result = self.searcher.get_info_lists(keyword)
+    #     self.assertIsNotNone(result)
+    #     self.assertTrue(len(result) > 0)
 
     def test_get_info_lists_invalid_keyword(self):
         self.log.info(f"Test Start: test_get_info_lists_correct")

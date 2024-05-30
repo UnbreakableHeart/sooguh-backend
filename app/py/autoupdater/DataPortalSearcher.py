@@ -8,11 +8,9 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 import traceback
+from overrides import overrides
 
 class IDataPortalSearcher:
-    """
-    공공데이터 포털 검색 인터페이스를 제공
-    """
     def __init__(self) -> None:
         pass
 
@@ -21,9 +19,6 @@ class IDataPortalSearcher:
         pass
 
 class DataPortalSearcher(IDataPortalSearcher): 
-    """
-    공공데이터 포털 검색 구현체
-    """
     SEARCH_CONFIG = config['SEARCH_CONFIG']
     search_params = {
             'dType': 'FILE',
@@ -39,6 +34,7 @@ class DataPortalSearcher(IDataPortalSearcher):
         self.log = logger.get_logger(__name__)
         return
     
+    @overrides
     def get_info_lists(self, keyword: str):
         self.log.info(f"Start to search by keyword: {keyword}")
         result = []
@@ -74,14 +70,16 @@ class DataPortalSearcher(IDataPortalSearcher):
             titles = ul.select(self.SEARCH_CONFIG['TITLE_SELECTOR'])
             providers = ul.select(self.SEARCH_CONFIG['PROVIDER_SELECTOR'])
             dates = ul.select(self.SEARCH_CONFIG['MODIFIED_DATE_SELECTOR'])
+            links = ul.select(self.SEARCH_CONFIG['ITEM_LINK_SELECTOR'])
 
-            if len(titles) == len(providers) == len(dates):
+            if len(titles) == len(providers) == len(dates) == len(links):
                 self.log.info("Succeed to get info list")
-                for title, provider, date in zip(titles, providers, dates):
+                for title, provider, date, link in zip(titles, providers, dates, links):
                     result.append({
                         'title': title.get_text().strip(),
                         'provider': provider.get_text().strip(),
-                        'date': date.get_text().strip()
+                        'date': date.get_text().strip(),
+                        'link': link.attrs['href']
                     })
                     self.log.info(result[-1]) 
             else:
