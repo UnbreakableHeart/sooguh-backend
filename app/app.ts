@@ -1,28 +1,31 @@
 import express from "express";
 import Logger from "./src/config/logger";
-// import dotenv from "dotenv";
+import dotenv from "dotenv";
+import HomeRouter from "./src/routes/home";
 
 const logger = Logger.getInstance();
-
 class App{
     private application: express.Application;
 
     constructor(){
         this.application = express();
+        this.initConfig();
         this.initMiddleware();
         this.initRoutes();
     };
+
+    private initConfig(){
+        dotenv.config();
+    };
+
     private initMiddleware(){
         // this.application.use(express.json());
         // this.application.use(express.urlencoded({extended: false}));
     };
 
     private initRoutes(){
-        this.application.get("/", (req, res) => {
-            res.status(200).json({
-                message: "Hello World"
-            });
-        });
+        const home = new HomeRouter().getRouter();
+        this.application.get("/", home);
     };
 
     public getApplication(): express.Application{
