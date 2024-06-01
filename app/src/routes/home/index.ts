@@ -14,6 +14,7 @@ class HomeRouter {
 
     private initRoutes(){
         this.router.get("/", this.homeController.outputHome);
+        this.router.post("/search", this.homeController.processSearch);
     }
 
     public getRouter(): Router{

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Logger from "../../config/logger";
+import ClothingBin from "../../models/ClothingBin";
 
 class HomeController {
     
@@ -13,6 +14,23 @@ class HomeController {
         });
         // TODO: render
         // res.render("home/index");
+    };
+
+    public async processSearch(req: Request, res: Response): Promise<void> {
+        Logger.getInstance().info(
+            `POST /search 200 Request: ${JSON.stringify(req.body)}`
+        );
+        const clothingBin = new ClothingBin(req.body);   
+        const response = await clothingBin.search();
+        if (response.err)
+            Logger.getInstance().error(
+                `POST /search 200 Response: Fail, ${response.err}`
+            );
+        else
+            Logger.getInstance().info(
+                `POST /search 200 Response: Success`
+            );
+        res.status(200).json(response);
     }
 }
 

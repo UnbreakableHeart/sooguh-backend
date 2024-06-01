@@ -19,13 +19,13 @@ class App{
     };
 
     private initMiddleware(){
-        // this.application.use(express.json());
-        // this.application.use(express.urlencoded({extended: false}));
+        this.application.use(express.json());
+        this.application.use(express.urlencoded({extended: true}));
     };
 
     private initRoutes(){
         const home = new HomeRouter().getRouter();
-        this.application.get("/", home);
+        this.application.use("/", home);
     };
 
     public getApplication(): express.Application{
