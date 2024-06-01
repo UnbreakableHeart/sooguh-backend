@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "nodemon --watch app/**/*.ts --exec ts-node app/app.ts",
     "build": "tsc -p .",
-    "star": "node dist/index.js",
+    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
