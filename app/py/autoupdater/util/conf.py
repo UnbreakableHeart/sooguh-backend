@@ -4,7 +4,7 @@ config = \
         'SEARCH_BASE_URL': 'https://www.data.go.kr/tcs/dss/selectDataSetList.do?',
         'SEARCH_PER_PAGE': 40,
         'SEARCH_LIST_SELECTOR': 'div.result-list > ul',
-        'ITEM_LINK_SELECTOR': 'dt > a',
+        'DOWNLOAD_BUTTON_SELECTOR': 'div.bottom-area > a',
         'TITLE_SELECTOR': 'span.title',
         'PROVIDER_SELECTOR': 'div.info-data > p:nth-child(1) > span.data',
         'MODIFIED_DATE_SELECTOR': 'div.info-data > p:nth-child(2) > span.data',
