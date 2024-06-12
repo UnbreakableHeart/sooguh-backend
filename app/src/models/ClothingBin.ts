@@ -1,7 +1,7 @@
 import Logger from "../config/logger";
-import ClothingBinStorage from "./ClothingBinStorage";
+import ClothBoxStorage from "./ClothBoxStorage";
 
-class ClothingBin {
+class ClothBox {
     private body: any;
 
     constructor(body: any) {
@@ -10,7 +10,7 @@ class ClothingBin {
 
     public async search(){
         try{
-            const response = await ClothingBinStorage.getClothingBins(this.body.lat, this.body.lon);
+            const response = await ClothBoxStorage.getClothBoxs(this.body.lat, this.body.lon);
             return response;
         }
         catch(error: any){
@@ -21,4 +21,4 @@ class ClothingBin {
 
 }
 
-export default ClothingBin;
+export default ClothBox;

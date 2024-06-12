@@ -21,7 +21,7 @@ class ExcelParser(IDataParseStrategy):
     def parse(self, file):
         return 
 
-class ClothingBinDataParser:
+class ClothBoxDataParser:
     """
     """
     def __init__(self) -> None:

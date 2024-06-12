@@ -1,23 +1,23 @@
 import Logger from "../config/logger";
 
-class ClothingBinStorage {
-    private static instance: ClothingBinStorage;
+class ClothBoxStorage {
+    private static instance: ClothBoxStorage;
 
     constructor(){
         // TODO
         //connect db
     };
 
-    public static getInstance(): ClothingBinStorage {
+    public static getInstance(): ClothBoxStorage {
         if (!this.instance) {
-            this.instance = new ClothingBinStorage();
-            Logger.getInstance().info("ClothingBinStorage instance created");
+            this.instance = new ClothBoxStorage();
+            Logger.getInstance().info("ClothBoxStorage instance created");
         }
         return this.instance;
     };
 
-    public static async getClothingBins(lat: number, lon: number): Promise<any> {
-        Logger.getInstance().info(`ClothingBinStorage getClothingBins called`);
+    public static async getClothBoxs(lat: number, lon: number): Promise<any> {
+        Logger.getInstance().info(`ClothBoxStorage getClothBoxs called`);
         Logger.getInstance().info(`lat: ${lat}, lon: ${lon}`);
         const dummyData = {
             info:[
@@ -42,4 +42,4 @@ class ClothingBinStorage {
     };
 }
 
-export default ClothingBinStorage;
+export default ClothBoxStorage;

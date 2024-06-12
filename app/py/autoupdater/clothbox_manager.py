@@ -1,7 +1,7 @@
 from util.logger import logger
 import abc
 
-class IClothingBinManager:
+class IClothBoxManager:
     """
     TODO
     """
@@ -13,10 +13,10 @@ class IClothingBinManager:
         pass
 
     @abc.abstractmethod
-    def write_clothingbin_data(self):
+    def write_clothbox_data(self):
         pass
 
-class ClothingBinManager(IClothingBinManager): 
+class ClothBoxManager(IClothBoxManager): 
     """
     TODO
     """
@@ -28,10 +28,10 @@ class ClothingBinManager(IClothingBinManager):
     def read_date_section(self, section:str):
         return
 
-    def write_clothingbin_data(self):
+    def write_clothbox_data(self):
         return
     
 if __name__ == "__main__":
-    manager = ClothingBinManager()
+    manager = ClothBoxManager()
     manager.read_date_section("서울")
-    manager.write_clothingbin_data()
+    manager.write_clothbox_data()

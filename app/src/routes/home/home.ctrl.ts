@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Logger from "../../config/logger";
-import ClothingBin from "../../models/ClothingBin";
+import ClothBox from "../../models/ClothBox";
 
 class HomeController {
     
@@ -20,8 +20,8 @@ class HomeController {
         Logger.getInstance().info(
             `POST /search 200 Request: ${JSON.stringify(req.body)}`
         );
-        const clothingBin = new ClothingBin(req.body);   
-        const response = await clothingBin.search();
+        const ClothBox = new ClothBox(req.body);   
+        const response = await ClothBox.search();
         if (response.err)
             Logger.getInstance().error(
                 `POST /search 200 Response: Fail, ${response.err}`
