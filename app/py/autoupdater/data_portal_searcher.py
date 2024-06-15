@@ -20,12 +20,7 @@ from urllib.parse import urlencode
 import traceback
 from overrides import overrides
 from typing import List, Dict
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
-import time
+from data_download_driver import DataDownloadDriver
 
 class IDataPortalSearcher:
     """An abstract base class for data portal searchers.
@@ -44,54 +39,6 @@ class IDataPortalSearcher:
         """
         pass
 
-class DataDownloadDriver():
-        def __init__(self, url: str) -> None:
-            # 크롤링 옵션 생성
-            options = webdriver.ChromeOptions()
-            # 백그라운드 실행 옵션 추가
-            options.add_argument("headless")
-            self.driver = webdriver.Chrome(options=options)
-            self.driver.get(url)
-
-            return
-        
-        def download_data(self, xpath: str) -> str:
-            self.driver.maximize_window()
-            button = WebDriverWait(self.driver, 10).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
-            button.click()
-            file_name = self._get_downLoaded_fileName()
-            # self.browser.switch_to_window(self.browser.window_handles[0])
-
-            return file_name
-        
-        def _get_downLoaded_fileName(self, waitTime: int = 10):
-            self.driver.execute_script("window.open()")
-            # switch to new tab
-            self.driver.switch_to.window(self.driver.window_handles[-1])
-            # navigate to chrome downloads
-            self.driver.get('chrome://downloads')
-            # define the endTime
-            endTime = time.time()+waitTime
-            while True:
-                try:
-                    # get downloaded percentage
-                    downloadPercentage = self.driver.execute_script(
-                        "return document.querySelector('downloads-manager').shadowRoot.querySelector('#downloadsList downloads-item').shadowRoot.querySelector('#progress').value")
-                    # check if downloadPercentage is 100 (otherwise the script will keep waiting)
-                    if downloadPercentage == 100:
-                        # return the file name once the download is completed
-                        return self.driver.execute_script("return document.querySelector('downloads-manager').shadowRoot.querySelector('#downloadsList downloads-item').shadowRoot.querySelector('div#content  #file-link').text")
-                except:
-                    pass
-                time.sleep(1)
-                if time.time() > endTime:                    
-                    break
-
-        
-        def __del__(self):
-            self.driver.quit()
-            return
-        
 class DataPortalSearcher(IDataPortalSearcher): 
     """A class for searching data in a data portal.
 
@@ -153,7 +100,6 @@ class DataPortalSearcher(IDataPortalSearcher):
                     break
                 if test == 1:
                     downloader = DataDownloadDriver(url)
-                    print(downloader.download_data(ret[0]['download_button_xpath']))
                     test = 2
                 result.extend(ret)
                 page += 1
@@ -209,13 +155,8 @@ class DataPortalSearcher(IDataPortalSearcher):
 
     
 if __name__ == "__main__":
-    # search = DataPortalSearcher()
-    # result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0])
-    # print(len(result))
-    # result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][1])
-    # print(len(result))
-    downloader = DataDownloadDriver("https://www.data.go.kr/tcs/dss/selectDataSetList.do?dType=FILE&keyword=%EC%9D%98%EB%A5%98+%EC%88%98%EA%B1%B0%ED%95%A8&operator=AND&recmSe=N&sort=updtDt&currentPage=1&perPage=40")
-    result = downloader.download_data('//*[@id="fileDataList"]/div[2]/ul/li[1]/div[2]/a')
-    print(result)
-    result = downloader.download_data('//*[@id="fileDataList"]/div[2]/ul/li[2]/div[2]/a')
-    print(result)
+    search = DataPortalSearcher()
+    result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0])
+    print(len(result))
+    result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][1])
+    print(len(result))
