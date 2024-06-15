@@ -5,7 +5,7 @@ This module is used to download data by keyword and date
 Example:
     >>> searcher = DataPortalSearcher()
     >>> result = searcher.download_data('keyword')
-    >>> result = searcher.download_data('keyword', 'date')
+    >>> result = searcher.download_data(f'{keyword}', f'{date}') # date format: 'YYYY-MM-DD'
 """
 
 import sys
@@ -19,8 +19,11 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 import traceback
 from overrides import overrides
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from data_download_driver import DataDownloadDriver
+import time
+
+log = logger.get_logger(__name__)
 
 class IDataPortalSearcher:
     """An abstract base class for data portal searchers.
@@ -60,7 +63,6 @@ class DataPortalSearcher(IDataPortalSearcher):
         
     def __init__(self) -> None:
         super().__init__()
-        self.log = logger.get_logger(__name__)
         return
     
     @overrides
@@ -82,38 +84,50 @@ class DataPortalSearcher(IDataPortalSearcher):
                 title (str): The title of the data.
                 provider (str): The name of the organization that provided the information.
                 date (str): The date when the data was last updated.
-                filename (str): The name of the file downloaded.
         """
 
-        self.log.info(f"Start to search by keyword: {keyword}")
+        log.info(f"Start to search by keyword: {keyword}")
         result = []
-
+        
         self.search_params['keyword'] = keyword
         page = 1
+        if date != None:
+            date = time.strptime(date, "%Y-%m-%d")
+        
+        downloader = DataDownloadDriver()
+
         try:
             while True:
-                test = 1
                 self.search_params['currentPage'] = str(page)
                 url = self.SEARCH_CONFIG['SEARCH_BASE_URL'] + urlencode(self.search_params)
-                ret = self._get_info_list(url)
+                ret, download_xpaths = self._get_info_list(url)
                 if not ret:
                     break
-                if test == 1:
-                    downloader = DataDownloadDriver(url)
-                    test = 2
+
+                downloader.open_url(url)
+                for i, xpath in enumerate(download_xpaths):
+                    file_date = time.strptime(ret[i]['date'], "%Y-%m-%d")
+                    if date and file_date < date:
+                        log.info(f"Skip downloading data: {ret[i]}")
+                        continue
+                    log.info(f"Downloading data: {ret[i]}")
+                    downloader.download_data(xpath)
+
                 result.extend(ret)
                 page += 1
+
         except Exception as e:
-            self.log.error(traceback.format_exc())
-            self.log.error(e)
-            self.log.error(f"Failed to download")
+            log.error(traceback.format_exc())
+            log.error(e)
+            log.error(f"Failed to download")
         
         return result
     
-    def _get_info_list(self, url: str) -> List[Dict[str, str]]:
-        self.log.info(f"Start to get info list form {url}")
+    def _get_info_list(self, url: str) -> Tuple[List[Dict[str, str]], List[str]]:
+        log.info(f"Start to get info list form {url}")
         response = requests.get(url)
         result= []
+        download_xpaths = []
 
         if response.status_code == config['WEB_STATUS']['OK']:
             html = response.text
@@ -126,21 +140,22 @@ class DataPortalSearcher(IDataPortalSearcher):
             download_buttons = ul.select(self.SEARCH_CONFIG['DOWNLOAD_BUTTON_SELECTOR'])
 
             if len(titles) == len(providers) == len(dates) == len(download_buttons):
-                self.log.info("Succeed to get info list")
+                log.info("Succeed to get info list")
                 for title, provider, date, button in zip(titles, providers, dates, download_buttons):
                     result.append({
                         'title': title.get_text().strip(),
                         'provider': provider.get_text().strip(),
                         'date': date.get_text().strip(),
-                        'download_button_xpath': self._get_xpath(button)
                     })
-                    self.log.info(result[-1]) 
+                    download_xpaths.append(self._get_xpath(button))
+                    log.info(result[-1]) 
+                    log.info(download_xpaths[-1])
             else:
                 raise Exception("title, provider, date length is not equal")
         else:
             raise Exception(f"HTTP error: {response.status_code}")
         
-        return result
+        return result, download_xpaths
 
     def _get_xpath(self, element: object) -> str:
         components = []
@@ -148,15 +163,15 @@ class DataPortalSearcher(IDataPortalSearcher):
         while child is not None and child.parent is not None:
             siblings = child.parent.find_all(child.name, recursive=False)
             index = siblings.index(child) + 1
-            components.append(f"{child.name}[{index}]")
+            if child.name != 'link':
+                components.append(f"{child.name}[{index}]")
             child = child.parent
         components.reverse()
         return '/' + '/'.join(components)
-
     
 if __name__ == "__main__":
     search = DataPortalSearcher()
-    result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0])
-    print(len(result))
-    result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][1])
+    # result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0])
+    # print(len(result))
+    result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][1], '2024-06-01')
     print(len(result))
