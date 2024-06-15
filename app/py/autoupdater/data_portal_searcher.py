@@ -20,7 +20,7 @@ from urllib.parse import urlencode
 import traceback
 from overrides import overrides
 from typing import List, Dict, Tuple
-from data_download_driver import DataDownloadDriver
+from autoupdater.data_download_driver import DataDownloadDriver
 import time
 
 log = logger.get_logger(__name__)
