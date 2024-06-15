@@ -17,9 +17,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-import traceback
 import time
 import os
+
+log = logger.get_logger(__name__)
 
 class DataDownloadDriver():
         """A class for downloading files from the specified URL
@@ -35,8 +36,8 @@ class DataDownloadDriver():
         DOWNLOAD_PATH = os.getcwd() + "\\res"
 
         def __init__(self) -> None:
-            self.log = logger.get_logger(__name__)
-            self.log.info("Initializing driver")
+            
+            log.info("Initializing driver")
             options = webdriver.ChromeOptions()
             # 백그라운드 실행 옵션 추가
             options.add_argument("headless")
@@ -53,7 +54,7 @@ class DataDownloadDriver():
                 url (str): The URL to open.
             """
 
-            self.log.info(f"Openning url: {url}")
+            log.info(f"Openning url: {url}")
             self.driver.get(url)
             return
         
@@ -64,8 +65,7 @@ class DataDownloadDriver():
                 xpath (str): The xpath to download the file.
             """
 
-            self.log.info(f"Downloading data: {xpath}")
-            self.driver.maximize_window()
+            log.info(f"Downloading data: {xpath}")
             button = WebDriverWait(self.driver, 10).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
             button.click()
             time.sleep(10)
@@ -73,7 +73,7 @@ class DataDownloadDriver():
             return
         
         def _enable_background_download(self):
-            self.log.info(f"Enabling background download, download path: {self.DOWNLOAD_PATH}")
+            log.info(f"Enabling background download, download path: {self.DOWNLOAD_PATH}")
             self.driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
             params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': self.DOWNLOAD_PATH}}
             self.driver.execute("send_command", params)
