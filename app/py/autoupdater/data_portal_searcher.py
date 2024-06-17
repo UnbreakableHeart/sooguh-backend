@@ -134,6 +134,10 @@ class DataPortalSearcher(IDataPortalSearcher):
             soup = BeautifulSoup(html, 'html.parser')
             ul = soup.select_one(self.SEARCH_CONFIG['SEARCH_LIST_SELECTOR'])
 
+            if ul is None:
+                log.info("No search results")
+                return result, download_xpaths
+
             titles = ul.select(self.SEARCH_CONFIG['TITLE_SELECTOR'])
             providers = ul.select(self.SEARCH_CONFIG['PROVIDER_SELECTOR'])
             dates = ul.select(self.SEARCH_CONFIG['MODIFIED_DATE_SELECTOR'])
