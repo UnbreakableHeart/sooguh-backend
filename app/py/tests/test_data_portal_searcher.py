@@ -60,6 +60,14 @@ class TestDataPortalSearcher(unittest.TestCase):
 
     def setUp(self):
         self.searcher = DataPortalSearcher()
+        self.mock_download_data = patch.object(DataDownloadDriver, 'download_data')
+        self.mock_download_data.return_value = None
+        self.mock_download_data.start()
+
+        self.mock_open_url = patch.object(DataDownloadDriver, 'open_url')
+        self.mock_open_url.return_value = None
+        self.mock_open_url.start()
+        
 
     def tearDown(self):
         pass
@@ -112,12 +120,8 @@ class TestDataPortalSearcher(unittest.TestCase):
         result = self.searcher.download_data('no_results_keyword')
         self.assertEqual(len(result), 0)
 
-    @patch.object(DataDownloadDriver, 'open_url')
-    @patch.object(DataDownloadDriver, 'download_data')
     @patch.object(DataPortalSearcher, '_get_info_list')
-    def test_download_data(self, mock_get_info_list, mock_download_data, mock_open_url):
-        mock_download_data.return_value = None
-
+    def test_download_data(self, mock_get_info_list):
         mock_get_info_list.side_effect = [
             (
                 [
@@ -130,8 +134,28 @@ class TestDataPortalSearcher(unittest.TestCase):
         ]
 
         result = self.searcher.download_data('keyword')
-        mock_open_url.assert_called()
-        mock_download_data.assert_called()
+        self.mock_open_url.assert_called()
+        self.assertEqual(self.mock_download_data.call_count, 2)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['title'], 'Data 1')
+        self.assertEqual(result[1]['title'], 'Data 2')
+
+    @patch.object(DataPortalSearcher, '_get_info_list')
+    def test_download_data_by_date(self, mock_get_info_list):
+        mock_get_info_list.side_effect = [
+            (
+                [
+                    {'title': 'Data 1', 'provider': 'Provider 1', 'date': '2021-01-01'},
+                    {'title': 'Data 2', 'provider': 'Provider 2', 'date': '2022-01-01'}
+                ],
+                ['xpath1', 'xpath2']
+            ),
+            ([], [])  # 루프를 종료시키기 위해 빈 리스트 반환
+        ]
+
+        result = self.searcher.download_data('keyword', '2021-12-01')
+        self.mock_open_url.assert_called()
+        self.mock_download_data.assert_called_once()
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]['title'], 'Data 1')
         self.assertEqual(result[1]['title'], 'Data 2')
