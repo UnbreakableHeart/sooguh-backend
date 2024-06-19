@@ -1,3 +1,15 @@
+"""A module for managing the db.
+
+This module defines the interface and the implementation of the class that manages the db.
+The class is responsible for reading and writing data to the db.
+
+Example:
+    >>> manager = ClothBoxManager()
+    >>> manager.write_clothbox_data("Seoul")
+    >>> manager.write_update_info(["Seoul"])
+    >>> print(manager.read_last_update_date())
+"""
+
 import sys
 from os import path
 sys.path.append(path.dirname( path.dirname( path.abspath(__file__) ) ))
