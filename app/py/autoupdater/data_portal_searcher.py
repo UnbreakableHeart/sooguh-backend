@@ -1,11 +1,11 @@
-"""Exploring the Public Data Portal and download data by keyword and date
+"""Exploring the Public Data Portal and search data by keyword and date
 
-This module is used to download data by keyword and date
+This module is used to search data by keyword and date
 
 Example:
     >>> searcher = DataPortalSearcher()
-    >>> result = searcher.download_data('keyword')
-    >>> result = searcher.download_data(f'{keyword}', f'{date}') # date format: 'YYYY-MM-DD'
+    >>> result = searcher.search_data('keyword')
+    >>> result = searcher.search_data(f'{keyword}', f'{date}') # date format: 'YYYY-MM-DD'
 """
 
 import sys
@@ -20,12 +20,12 @@ from urllib.parse import urlencode
 import traceback
 from overrides import overrides
 from typing import List, Dict, Tuple
-from autoupdater.data_download_driver import DataDownloadDriver
 import time
+
 
 log = logger.get_logger(__name__)
 
-class IDataPortalSearcher:
+class IDataPortalSearcher(metaclass=abc.ABCMeta):
     """An abstract base class for data portal searchers.
 
     This interface defines the methods that should be implemented by a class that search for data in a data portal.
@@ -34,11 +34,25 @@ class IDataPortalSearcher:
         pass
 
     @abc.abstractmethod
-    def download_data(self, keyword:str, date:str=None) -> List[Dict[str, str]]:
-        """Abstract method to download all data by a given keyword.
+    def search_data(self, keyword:str, date:str=None) -> List[Dict[str, str]]:
+        """Abstract method to search all data by a given keyword.
         
-        Download data from the data portal and and returns a list of dictionaries containing information about the data found by the given keyword. 
-        Each dictionary should have the following keys: 'title', 'provider', 'date', and 'filename'.
+        Search data from the data portal and and returns a list of dictionaries containing information about the data found by the given keyword. 
+        Each dictionary should have the following keys: 'title', 'provider', 'date', and 'link'.
+
+        Args:
+            keyword (str): The keyword to search for in the data portal.
+            date (str, optional): The date to search for in the data portal. 
+                It will search data if the modification date is more recent than the given date. 
+                Defaults to None.(If None, it will download all data.)
+                Example: '2020-01-01'
+
+        Returns:    
+            List[Dict[str, str]]: A list of dictionaries containing information about the data found by the given keyword. Each dictionary should have the following keys: 'title', 'provider', 'date', and 'link'.
+                title (str): The title of the data.
+                provider (str): The name of the organization that provided the information.
+                date (str): The date when the data was last updated.
+                link (str): The link to download the data.
         """
         pass
 
@@ -66,24 +80,25 @@ class DataPortalSearcher(IDataPortalSearcher):
         return
     
     @overrides
-    def download_data(self, keyword: str, date: str=None) -> List[Dict[str, str]]:
-        """Download data portal using the given keyword and return the list of data.
-
-        Download data from the data portal and and returns a list of dictionaries containing information about the data found by the given keyword. 
-        Each dictionary should have the following keys: 'title', 'provider', 'date', and 'filename'.
+    def search_data(self, keyword: str, date: str=None) -> List[Dict[str, str]]:
+        """Search data portal using the given keyword and return the list of data.
+        
+        Search data from the data portal and and returns a list of dictionaries containing information about the data found by the given keyword. 
+        Each dictionary should have the following keys: 'title', 'provider', 'date', and 'link'.
 
         Args:
             keyword (str): The keyword to search for in the data portal.
             date (str, optional): The date to search for in the data portal. 
-                It will download data if the modification date is more recent than the given date. 
+                It will search data if the modification date is more recent than the given date. 
                 Defaults to None.(If None, it will download all data.)
                 Example: '2020-01-01'
 
-        Returns:
+        Returns:    
             List[Dict[str, str]]: A list of dictionaries containing information about the data found by the given keyword. Each dictionary should have the following keys: 'title', 'provider', 'date', and 'link'.
                 title (str): The title of the data.
                 provider (str): The name of the organization that provided the information.
                 date (str): The date when the data was last updated.
+                link (str): The link to download the data.
         """
 
         log.info(f"Start to search by keyword: {keyword}")
@@ -93,33 +108,28 @@ class DataPortalSearcher(IDataPortalSearcher):
         page = 1
         if date != None:
             date = time.strptime(date, "%Y-%m-%d")
-        
-        downloader = DataDownloadDriver()
 
         try:
             while True:
                 self.search_params['currentPage'] = str(page)
                 url = self.SEARCH_CONFIG['SEARCH_BASE_URL'] + urlencode(self.search_params)
-                ret, download_xpaths = self._get_info_list(url)
+                ret = self._get_info_list(url)
                 if not ret:
                     break
 
-                downloader.open_url(url)
-                for i, xpath in enumerate(download_xpaths):
-                    file_date = time.strptime(ret[i]['date'], "%Y-%m-%d")
+                for item in ret:
+                    file_date = time.strptime(item['date'], "%Y-%m-%d")
                     if date and file_date < date:
-                        log.info(f"Skip downloading data: {ret[i]}")
+                        log.info(f"-- Skip data: {item}")
                         continue
-                    log.info(f"Downloading data: {ret[i]}")
-                    downloader.download_data(xpath)
-
-                result.extend(ret)
+                    log.info(f"Getting data: {item}")
+                    result.append(ret)
                 page += 1
 
         except Exception as e:
             log.error(traceback.format_exc())
             log.error(e)
-            log.error(f"Failed to download")
+            log.error(f"Failed to search")
         
         return result
     
@@ -127,7 +137,6 @@ class DataPortalSearcher(IDataPortalSearcher):
         log.info(f"Start to get info list form {url}")
         response = requests.get(url)
         result= []
-        download_xpaths = []
 
         if response.status_code == config['WEB_STATUS']['OK']:
             html = response.text
@@ -136,46 +145,32 @@ class DataPortalSearcher(IDataPortalSearcher):
 
             if ul is None:
                 log.info("No search results")
-                return result, download_xpaths
+                return result
 
             titles = ul.select(self.SEARCH_CONFIG['TITLE_SELECTOR'])
             providers = ul.select(self.SEARCH_CONFIG['PROVIDER_SELECTOR'])
             dates = ul.select(self.SEARCH_CONFIG['MODIFIED_DATE_SELECTOR'])
-            download_buttons = ul.select(self.SEARCH_CONFIG['DOWNLOAD_BUTTON_SELECTOR'])
+            download_links = ul.select(self.SEARCH_CONFIG['ITEM_LINK_SELECTOR'])
 
-            if len(titles) == len(providers) == len(dates) == len(download_buttons):
+            if len(titles) == len(providers) == len(dates) == len(download_links):
                 log.info("Succeed to get info list")
-                for title, provider, date, button in zip(titles, providers, dates, download_buttons):
+                for title, provider, date, link in zip(titles, providers, dates, download_links):
                     result.append({
                         'title': title.get_text().strip(),
                         'provider': provider.get_text().strip(),
                         'date': date.get_text().strip(),
+                        'link': link['href']
                     })
-                    download_xpaths.append(self._get_xpath(button))
-                    log.info(result[-1]) 
-                    log.info(download_xpaths[-1])
             else:
                 raise Exception("title, provider, date length is not equal")
         else:
             raise Exception(f"HTTP error: {response.status_code}")
         
-        return result, download_xpaths
-
-    def _get_xpath(self, element: object) -> str:
-        components = []
-        child = element if element.name else element.parent
-        while child is not None and child.parent is not None:
-            siblings = child.parent.find_all(child.name, recursive=False)
-            index = siblings.index(child) + 1
-            if child.name != 'link':
-                components.append(f"{child.name}[{index}]")
-            child = child.parent
-        components.reverse()
-        return '/' + '/'.join(components)
+        return result
     
 if __name__ == "__main__":
     search = DataPortalSearcher()
-    # result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0])
-    # print(len(result))
-    result = search.download_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][1], '2024-06-01')
+    result = search.search_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][0])
+    print(len(result))
+    result = search.search_data(config['SEARCH_CONFIG']['SEARCH_KEYWORD'][1], '2024-06-01')
     print(len(result))
