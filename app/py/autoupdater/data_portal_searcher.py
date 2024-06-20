@@ -123,7 +123,7 @@ class DataPortalSearcher(IDataPortalSearcher):
                         log.info(f"-- Skip data: {item}")
                         continue
                     log.info(f"Getting data: {item}")
-                    result.append(ret)
+                    result.append(item)
                 page += 1
 
         except Exception as e:
