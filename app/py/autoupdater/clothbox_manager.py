@@ -5,9 +5,11 @@ The class is responsible for reading and writing data to the db.
 
 Example:
     >>> manager = ClothBoxManager()
-    >>> manager.write_clothbox_data("Seoul")
-    >>> manager.write_update_info(["Seoul"])
-    >>> print(manager.read_last_update_date())
+    >>> ret = manager.delete_clothbox_data("Seoul")
+    >>> ret = manager.write_clothbox_data("Suwon", "수원", [37.5665, 126.9780])
+    >>> ret = manager.write_update_info(["수원"])
+    >>> ret = manager.read_last_update_date()
+    >>> ret = manager.get_clothbox_data("Suwon")
 """
 
 import sys
@@ -26,7 +28,7 @@ from pymongo.server_api import ServerApi
 
 log = logger.get_logger(__name__)
 
-class IClothBoxManager:
+class IClothBoxManager(metaclass=abc.ABCMeta):
     """An abstract base class for db manager.
 
     This interface defines the methods that should be implemented by a class that manages the db.
@@ -56,14 +58,40 @@ class IClothBoxManager:
         pass
 
     @abc.abstractmethod
-    def write_clothbox_data(self, address:str) -> bool:
+    def write_clothbox_data(self, address:str, providing_name:str, coordinates:List[float]) -> bool:
         """Abstract method to write the clothbox data to the db.
+
+        Args:
+            address (str): The address of the clothbox.
+            providing_name (str): The name of the provider.
+            coordinates (List[float]): The coordinates of the clothbox.
+
+        Returns:
+            bool: True if the clothbox data was written successfully, False otherwise.
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_clothbox_data(self, providing_name:str) -> List[str]:
+        """Abstract method to get the clothboxes from the db by a specific organization.
+
+        Args:
+            providing_name (str): The name of the provider.
+
+        Returns:
+            List[str]: A list of the address of clothboxes.
+        """
+        pass
+
+    @abc.abstractmethod
+    def delete_clothbox_data(self, address:str) -> bool:
+        """Abstract method to delete the clothbox data from the db.
 
         Args:
             address (str): The address of the clothbox.
 
         Returns:
-            bool: True if the clothbox data was written successfully, False otherwise.
+            bool: True if the clothbox data was deleted successfully, False otherwise.
         """
         pass
 
@@ -130,11 +158,13 @@ class ClothBoxManager(IClothBoxManager):
         return result.acknowledged
 
     @overrides
-    def write_clothbox_data(self, address:str) -> bool:
+    def write_clothbox_data(self, address:str, providing_name:str, coordinates:List[float]) -> bool:
         """Write the clothbox data to the db.
 
         Args:
             address (str): The address of the clothbox.
+            providing_name (str): The name of the provider.
+            coordinates (List[float]): The coordinates of the clothbox.
 
         Returns:
             bool: True if the clothbox data was written successfully, False otherwise.
@@ -143,21 +173,52 @@ class ClothBoxManager(IClothBoxManager):
         clothbox_collection = self.db[os.environ.get('DB_COLLECTION_CLOTH_BOX')]
         update_query = {
             "address": address,
+            "providing_name": providing_name,
             "location": {
                 "type": "Point",
-                "coordinates": self._get_coordinates(address)
+                "coordinates": coordinates
             }
         }
         result = clothbox_collection.update_one({"address": address}, {"$set": update_query}, upsert=True)
         return result.acknowledged
+    
+    @overrides
+    def get_clothbox_data(self, providing_name: str) -> List[str]:
+        """Get the clothboxes from the db by a specific organization.
 
-    def _get_coordinates(self, address:str) -> List[float]:
-        log.info("Getting the coordinates of the address...")
-        # TODO: Implement the logic to get the coordinates of the address.
-        return [0.0, 0.0]
+        Args:
+            providing_name (str): The name of the provider.
+
+        Returns:
+            List[str]: A list of the address of clothboxes.
+        """
+        log.info(f"Getting the clothboxes provided by the organization: {providing_name}...")
+        clothbox_collection = self.db[os.environ.get('DB_COLLECTION_CLOTH_BOX')]
+        docs = list(clothbox_collection.find({
+            "providing_name": providing_name
+        }))
+        return [doc["address"] for doc in docs]
+    
+    @overrides
+    def delete_clothbox_data(self, address:str) -> bool:
+        """Delete the clothbox data from the db.
+
+        Args:
+            address (str): The address of the clothbox.
+
+        Returns:
+            bool: True if the clothbox data was deleted successfully, False otherwise.
+        """
+        log.info(f"Deleting the clothbox data from the db...: {address}")
+        clothbox_collection = self.db[os.environ.get('DB_COLLECTION_CLOTH_BOX')]
+        result = clothbox_collection.delete_one({"address": address})
+        return result.acknowledged
     
 if __name__ == "__main__":
     manager = ClothBoxManager()
-    manager.write_clothbox_data("Seoul")
-    manager.write_update_info(["Seoul"])
+    print(manager.delete_clothbox_data("Seoul"))
+    print(manager.delete_clothbox_data("Incheon"))
+    print(manager.write_clothbox_data("Suwon", "수원", [37.5665, 126.9780]))
+    print(manager.write_update_info(["수원"]))
     print(manager.read_last_update_date())
+    print(manager.get_clothbox_data("Suwon"))
