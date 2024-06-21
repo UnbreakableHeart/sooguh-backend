@@ -50,7 +50,7 @@ class ClothBoxStorage {
                 }
             }).toArray();
             Logger.getInstance().info(`Successfully got cloth boxes`);
-            return { response: docs };
+            return docs;
         } catch (err) {
             Logger.getInstance().error(`Failed to get cloth boxes: ${err}`);
             return { response: { err: err } };
