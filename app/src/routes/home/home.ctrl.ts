@@ -4,9 +4,6 @@ import ClothBox from "../../models/ClothBox";
 
 class HomeController {
     
-    constructor(){
-    }
-
     public outputHome(req: Request, res: Response): void {
         Logger.getInstance().info(`GET / 200 "홈 화면 출력"`);
         res.status(200).json({

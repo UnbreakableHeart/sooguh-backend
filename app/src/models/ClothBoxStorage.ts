@@ -1,11 +1,27 @@
 import Logger from "../config/logger";
+import dotenv from "dotenv";
+import DatabaseSingleton from "../config/db";
+
+dotenv.config();
+
+interface ClothBoxSchema {
+    _id: string;
+    address: string;
+    providing_name: string;
+    loaction: {
+        type: string;
+        coordinates: number[];
+    };
+}
 
 class ClothBoxStorage {
     private static instance: ClothBoxStorage;
+    private collection: any;
 
-    constructor(){
-        // TODO
-        //connect db
+    private constructor(){
+        const db = DatabaseSingleton.getInstance().getDb();
+        const collection_name = process.env.DB_COLLECTION_CLOTH_BOX || "clothes_box";
+        this.collection = db.collection<ClothBoxSchema>(collection_name);
     };
 
     public static getInstance(): ClothBoxStorage {
@@ -16,29 +32,29 @@ class ClothBoxStorage {
         return this.instance;
     };
 
-    public static async getClothBoxs(lat: number, lon: number): Promise<any> {
-        Logger.getInstance().info(`ClothBoxStorage getClothBoxs called`);
-        Logger.getInstance().info(`lat: ${lat}, lon: ${lon}`);
-        const dummyData = {
-            info:[
-            {
-                id: 1,
-                dong: "팔달구",
-                address: "경기도 수원시 권선구 권선 1동 수원시청역",
-                lat: 37.261851,
-                lon: 127.031121
-            },
-            {
-                id: 2,
-                dong: "팔달구",
-                address: "경기도 수원시 팔달구 효원로 307번길 20",
-                lat: 37.261890232996635,
-                lon: 127.03742802143097
-            }
-        ]};
-        return new Promise((resolve, reject) => {
-            resolve(dummyData);
-        });
+    public async getClothBoxes(lat: number, lon: number): Promise<any> {
+        Logger.getInstance().info(`Getting cloth boxes, lat: ${lat}, lon: ${lon}`);
+        const distance = parseInt(process.env.SEARCH_DISTANCE || `1000`);
+
+        try{
+            this.collection.createIndex({location:"2dsphere"});
+            const docs = await this.collection.find({
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [lon, lat]
+                        },
+                        $maxDistance: distance
+                    }
+                }
+            }).toArray();
+            Logger.getInstance().info(`Successfully got cloth boxes`);
+            return { response: docs };
+        } catch (err) {
+            Logger.getInstance().error(`Failed to get cloth boxes: ${err}`);
+            return { response: { err: err } };
+        }
     };
 }
 

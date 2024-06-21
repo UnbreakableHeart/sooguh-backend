@@ -10,7 +10,7 @@ class ClothBox {
 
     public async search(){
         try{
-            const response = await ClothBoxStorage.getClothBoxs(this.body.lat, this.body.lon);
+            const response = await ClothBoxStorage.getInstance().getClothBoxes(this.body.lat, this.body.lon);
             return response;
         }
         catch(error: any){
