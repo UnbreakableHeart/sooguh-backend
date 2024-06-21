@@ -20,8 +20,8 @@ class HomeController {
         Logger.getInstance().info(
             `POST /search 200 Request: ${JSON.stringify(req.body)}`
         );
-        const ClothBox = new ClothBox(req.body);   
-        const response = await ClothBox.search();
+        const clothBox = new ClothBox(req.body);   
+        const response = await clothBox.search();
         if (response.err)
             Logger.getInstance().error(
                 `POST /search 200 Response: Fail, ${response.err}`

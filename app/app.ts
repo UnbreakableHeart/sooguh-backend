@@ -2,6 +2,7 @@ import express from "express";
 import Logger from "./src/config/logger";
 import dotenv from "dotenv";
 import HomeRouter from "./src/routes/home";
+import DatabaseSingleton from "./src/config/db";
 
 const logger = Logger.getInstance();
 class App{
@@ -16,6 +17,7 @@ class App{
 
     private initConfig(){
         dotenv.config();
+        DatabaseSingleton.getInstance().connect();
     };
 
     private initMiddleware(){
