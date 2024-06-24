@@ -32,9 +32,8 @@ class ClothBoxStorage {
         return this.instance;
     };
 
-    public async getClothBoxes(lat: number, lon: number): Promise<any> {
-        Logger.getInstance().info(`Getting cloth boxes, lat: ${lat}, lon: ${lon}`);
-        const distance = parseInt(process.env.SEARCH_DISTANCE || `1000`);
+    public async getClothBoxes(lat: number, lon: number, distance: number): Promise<any> {
+        Logger.getInstance().info(`Getting cloth boxes, lat: ${lat}, lon: ${lon}, distance: ${distance}`);
 
         try{
             this.collection.createIndex({location:"2dsphere"});
