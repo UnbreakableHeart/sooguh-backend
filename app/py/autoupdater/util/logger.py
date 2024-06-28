@@ -8,10 +8,12 @@ def get_logger(name):
         '%(asctime)s:[%(name)s][%(levelname)s] - %(filename)s:%(lineno)d - %(message)s')
     # 스트림 핸들러 정의
     stream_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler('Log.log', mode='a', encoding='utf-8')
     # 각 핸들러에 포멧 지정
     stream_handler.setFormatter(formatter)
     # 로거 인스턴스에 핸들러 삽입
     __logger.addHandler(stream_handler)
+    __logger.addHandler(file_handler)
     # 로그 레벨 정의
     __logger.setLevel(logging.DEBUG)
 
