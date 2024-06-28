@@ -14,5 +14,6 @@ config = \
     'WEB_STATUS':{
         "OK": 200
     },
-    'DOWNLOAD_BUTTON_XPATH': '//*[@id="tab-layer-file"]/div[2]/div[2]/a'
+    'DOWNLOAD_BUTTON_XPATH': '//*[@id="tab-layer-file"]/div[2]/div[2]/a',
+    'ADDRESS_PARSING_WORDS': ['주소', '위치', '장소', '소재지']
 }
