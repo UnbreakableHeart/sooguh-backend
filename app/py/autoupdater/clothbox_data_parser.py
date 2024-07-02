@@ -81,7 +81,7 @@ class CsvParser(IDataParseStrategy):
         return values
 
 class ClothBoxDataParser:
-    """
+    """ A class that parses address from a file using a strategy pattern.
     """
     def __init__(self) -> None:
         self.parse_strategy: IDataParseStrategy = None
