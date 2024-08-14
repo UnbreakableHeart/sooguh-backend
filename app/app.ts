@@ -37,5 +37,5 @@ class App{
 
 const app = new App().getApplication();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => logger.info(`Listen on port ${PORT}`));
