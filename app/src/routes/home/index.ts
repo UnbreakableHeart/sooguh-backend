@@ -13,8 +13,32 @@ class HomeRouter {
     }
 
     private initRoutes(){
-        this.router.get("/", this.homeController.outputHome);
-        this.router.post("/search", this.homeController.processSearch);
+        this.router.post("/search", this.homeController.processSearch
+            /*
+            #swagger.tags = {
+                name: 'default',
+            }
+            #swagger.summary = 'Search for clothboxes'
+            #swagger.description = 'Search for clothboxes'
+            #swagger.requestBody = {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            $ref: "#/components/schemas/CurrentLocation"
+                        }  
+                    }
+                }
+            } 
+            #swagger.responses[200] = { 
+                schema: { $ref: "#/components/schemas/ClothBox" },
+                description: 'Successful search'
+            }
+            #swagger.responses[400] = { 
+                description: 'Error in search'
+            }
+            */
+        );
     }
 
     public getRouter(): Router{
