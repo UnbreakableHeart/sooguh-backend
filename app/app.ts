@@ -5,6 +5,7 @@ import HomeRouter from "./src/routes/home";
 import DatabaseSingleton from "./src/config/db";
 import swaggerUI from 'swagger-ui-express';
 import swaggerJson from "./src/swagger/swagger-output.json";
+import cors from 'cors';
 
 const logger = Logger.getInstance();
 class App{
@@ -25,6 +26,7 @@ class App{
     private initMiddleware(){
         this.application.use(express.json());
         this.application.use(express.urlencoded({extended: true}));
+        this.application.use(cors());
         
     };
 
