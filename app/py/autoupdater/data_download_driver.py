@@ -64,7 +64,7 @@ class DataDownloadDriver():
             Args:
                 xpath (str): The xpath to download the file.
             """
-            self.log.info(f"Downloading data")
+            log.info(f"Downloading data")
             button = WebDriverWait(self.driver, 50).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
             button.click()
             time.sleep(10)
