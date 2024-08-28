@@ -40,7 +40,7 @@ const doc = {
             CurrentLocation: {
                 type: "object",
                 properties: {
-                    $coordinates: {
+                    coordinates: {
                         $ref: "#/components/schemas/Coordinates",
                     },
                     distance: {
