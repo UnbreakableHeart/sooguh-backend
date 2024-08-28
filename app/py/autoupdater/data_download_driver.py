@@ -19,6 +19,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 import time
 import os
+import platform
 
 log = Logger.get_instance(__name__)
 
@@ -42,7 +43,10 @@ class DataDownloadDriver():
             # 백그라운드 실행 옵션 추가
             options.add_argument("headless")
             options.add_argument("window-size=1920x1080")
-            self.driver = webdriver.Chrome(options=options)
+            if platform.system() == "Linux" and "Ubuntu" in platform.release():
+                self.driver = webdriver.Chrome(executable_path=os.getcwd() +'\\bin\\chromedriver', options=options)
+            else:
+                self.driver = webdriver.Chrome(options=options)
             self._enable_background_download()
             
             return
