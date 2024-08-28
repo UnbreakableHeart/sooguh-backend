@@ -1,5 +1,9 @@
 import swaggerAutogen from "swagger-autogen";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+const PORT = process.env.PORT || 3000;
 
 const doc = {
     info: {
@@ -8,7 +12,7 @@ const doc = {
     },
     servers: [
         {
-            url: "http://localhost:3000",
+            url: "http://localhost:"+PORT.toString(),
         },
     ],
     schemes: ["http"],
