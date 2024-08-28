@@ -65,7 +65,7 @@ class DataDownloadDriver():
                 xpath (str): The xpath to download the file.
             """
             log.info(f"Downloading data")
-            button = WebDriverWait(self.driver, 50).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
+            button = WebDriverWait(self.driver, 30).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
             button.click()
             time.sleep(10)
 
@@ -85,5 +85,5 @@ class DataDownloadDriver():
         
 if __name__ == "__main__":
     driver = DataDownloadDriver()
-    driver.open_url('https://www.data.go.kr/tcs/dss/selectDataSetList.do?dType=FILE&keyword=%ED%97%8C%EC%98%B7+%EC%88%98%EA%B1%B0%ED%95%A8&operator=&detailKeyword=&publicDataPk=&recmSe=N&detailText=&relatedKeyword=&commaNotInData=&commaAndData=&commaOrData=&must_not=&tabId=&dataSetCoreTf=&coreDataNm=&sort=_score&relRadio=&orgFullName=&orgFilter=&org=&orgSearch=&currentPage=1&perPage=10&brm=&instt=&svcType=&kwrdArray=&extsn=&coreDataNmArray=&pblonsipScopeCode=')
-    driver.download_data('/html/body/div[2]/div/div[2]/div/div[10]/div[2]/ul/li[2]/div[2]/a')    
+    driver.open_url('https://www.data.go.kr/data/15127178/fileData.do')
+    driver.download_data('//*[@id="tab-layer-file"]/div[2]/div[2]/a')    
