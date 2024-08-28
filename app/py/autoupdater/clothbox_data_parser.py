@@ -12,7 +12,7 @@ Example:
 import sys
 import os
 sys.path.append(os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ))
-from autoupdater.util import logger
+from autoupdater.util.logger import Logger
 from autoupdater.util.conf import config
 import abc
 import os
@@ -20,7 +20,7 @@ from typing import List
 import pandas as pd
 from overrides import overrides
 
-log = logger.get_logger(__name__)
+log = Logger.get_instance(__name__)
 
 class IDataParseStrategy:
     """An abstract base class for data parse strategies.

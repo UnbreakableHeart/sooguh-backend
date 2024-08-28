@@ -11,7 +11,7 @@ Example:
 import sys
 from os import path
 sys.path.append(path.dirname( path.dirname( path.abspath(__file__) ) ))
-from autoupdater.util import logger
+from autoupdater.util.logger import Logger
 from autoupdater.util.conf import config
 import abc
 import requests
@@ -23,7 +23,7 @@ from typing import List, Dict, Tuple
 import time
 
 
-log = logger.get_logger(__name__)
+log = Logger.get_instance(__name__)
 
 class IDataPortalSearcher(metaclass=abc.ABCMeta):
     """An abstract base class for data portal searchers.

@@ -15,7 +15,7 @@ Example:
 import sys
 from os import path
 sys.path.append(path.dirname( path.dirname( path.abspath(__file__) ) ))
-from autoupdater.util import logger
+from autoupdater.util.logger import Logger
 from autoupdater.util.conf import config
 import abc
 import pymongo
@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 import os
 from pymongo.server_api import ServerApi
 
-log = logger.get_logger(__name__)
+log = Logger.get_instance(__name__)
 
 class IClothBoxManager(metaclass=abc.ABCMeta):
     """An abstract base class for db manager.
@@ -164,7 +164,7 @@ class ClothBoxManager(IClothBoxManager):
         Args:
             address (str): The address of the clothbox.
             providing_name (str): The name of the provider.
-            coordinates (List[float]): The coordinates of the clothbox.
+            coordinates (List[float]): The coordinates of the clothbox. The order should be [longitude, latitude].
 
         Returns:
             bool: True if the clothbox data was written successfully, False otherwise.
@@ -218,7 +218,9 @@ if __name__ == "__main__":
     manager = ClothBoxManager()
     print(manager.delete_clothbox_data("Seoul"))
     print(manager.delete_clothbox_data("Incheon"))
-    print(manager.write_clothbox_data("Suwon", "수원", [37.5665, 126.9780]))
-    print(manager.write_update_info(["수원"]))
+    print(manager.write_clothbox_data("송파동 18-3", "송파구", [127.10801000757587,	37.506659051679726]))
+    print(manager.write_clothbox_data("송파동 22-6", "송파구", [127.109457691,	37.510190298]))
+    print(manager.write_clothbox_data("송파동 21-11", "송파구", [127.106755185,	37.507608279]))
+    print(manager.write_update_info(["송파구"]))
     print(manager.read_last_update_date())
-    print(manager.get_clothbox_data("Suwon"))
+    print(manager.get_clothbox_data("송파구"))

@@ -12,7 +12,7 @@ Example:
 import sys
 from os import path
 sys.path.append(path.dirname( path.dirname( path.abspath(__file__) ) ))
-from autoupdater.util import logger
+from autoupdater.util.logger import Logger
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -20,7 +20,7 @@ from selenium.webdriver.support import expected_conditions
 import time
 import os
 
-log = logger.get_logger(__name__)
+log = Logger.get_instance(__name__)
 
 class DataDownloadDriver():
         """A class for downloading files from the specified URL
@@ -64,8 +64,8 @@ class DataDownloadDriver():
             Args:
                 xpath (str): The xpath to download the file.
             """
-
-            button = WebDriverWait(self.driver, 10).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
+            self.log.info(f"Downloading data")
+            button = WebDriverWait(self.driver, 50).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
             button.click()
             time.sleep(10)
 

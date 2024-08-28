@@ -3,7 +3,6 @@ from unittest.mock import patch
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from autoupdater.util import logger
 from autoupdater.util.conf import config
 from autoupdater.data_portal_searcher import DataPortalSearcher
 
