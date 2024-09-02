@@ -17,6 +17,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.common.exceptions import TimeoutException, NoAlertPresentException
 import time
 import os
 import platform
@@ -62,17 +63,25 @@ class DataDownloadDriver():
             self.driver.get(url)
             return
         
-        def download_data(self, xpath: str) -> str:
+        def download_data(self, xpath: str) -> None:
             """Downloads the file using the specified xpath.
 
             Args:
                 xpath (str): The xpath to download the file.
             """
             log.info(f"Downloading data")
-            button = WebDriverWait(self.driver, 30).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
-            button.click()
-            time.sleep(10)
-
+            try:
+                self.driver.maximize_window()
+                button = WebDriverWait(self.driver, 30).until(expected_conditions.element_to_be_clickable((By.XPATH, xpath)))
+                button.click()
+                WebDriverWait(self.driver, 10).until(expected_conditions.alert_is_present())
+                alert = self.driver.switch_to.alert
+                alert.accept()
+            except TimeoutException:
+                log.error("Timeout: Element not clickable")
+            except NoAlertPresentException:
+                log.warn("No alert present after clicking the button")
+            time.sleep(5)
             return
         
         def _enable_background_download(self):

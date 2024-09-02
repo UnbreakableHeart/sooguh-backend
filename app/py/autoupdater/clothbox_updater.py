@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from typing import List
 import requests, json
 import traceback
+import re
 
 log = Logger.get_instance(__name__)
 load_dotenv()
@@ -42,7 +43,7 @@ class ClothBoxUpdater:
         log.info("Start to udpate cloth box")
         search_data_list = self._search_data()
         print(search_data_list)
-        if search_data_list is None:
+        if search_data_list is None or len(search_data_list) == 0:
             log.error("No data found.")
             return
         update_info = []
@@ -56,10 +57,11 @@ class ClothBoxUpdater:
                 for data in result:
                     try:
                         address, coordinates = self._get_lat_lng(data)
+                        print(address, providing_name, coordinates)
+                        self.clothbox_db.write_clothbox_data(address, providing_name, [coordinates['lon'], coordinates['lat']])
                     except Exception as e:
-                        log.error(f"Failed to get coordinates: {data}")
-                    print(address, providing_name, coordinates)
-                    self.clothbox_db.write_clothbox_data(address, providing_name,coordinates)
+                        log.error(f"Failed to write data: {data}")
+                        log.error(f"Error: {e}")
             except Exception as e:
                 log.error(f"Failed to write data: {search_data['title']}")
                 log.error(f"Error: {e}")
@@ -102,6 +104,7 @@ class ClothBoxUpdater:
         return data_list
     
     def _get_lat_lng(self, address: str) -> tuple:
+        address = re.sub(r'\s*\(.*?\)\s*', '', address)
         url = config['KAKAO_ADDRESS_API_URL'] + address
         kakao_api_key = os.getenv('KAKAO_API_KEY')
 
@@ -109,7 +112,7 @@ class ClothBoxUpdater:
         api_json = json.loads(str(requests.get(url,headers=headers).text))
 
         address = api_json['documents'][0]['address']
-        coordinates = {"lat": str(address['y']), "lng": str(address['x'])}
+        coordinates = {"lat": float(address['y']), "lon": float(address['x'])}
         return address['address_name'], coordinates
         
 if __name__ == "__main__":
