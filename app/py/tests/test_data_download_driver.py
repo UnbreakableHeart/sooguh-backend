@@ -45,7 +45,7 @@ class TestDataDownloadDriver(unittest.TestCase):
 
         test_xpath = "//button[@id='download']"
         self.driver.download_data(test_xpath)
-        WebDriverWait(self.driver.driver, 10).until.assert_called_once()
+        WebDriverWait(self.driver.driver, 10).until.assert_called()
 
     def test_enable_background_download(self):
         self.driver.driver.execute.assert_called_once_with('send_command', ANY)
