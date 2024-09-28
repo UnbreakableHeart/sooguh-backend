@@ -18,7 +18,7 @@ class ClothBox {
 
     public async search(){
         try{
-            const result = await ClothBoxStorage.getInstance().getClothBoxes(this.body.lat, this.body.lon, this.body.distance);
+            const result = await ClothBoxStorage.getInstance().getClothBoxes(this.body.coordinates.lat, this.body.coordinates.lon, this.body.distance);
             const response = result.map((item: ClothBoxItem) => ({
                 _id: item._id,
                 address: item.address,
