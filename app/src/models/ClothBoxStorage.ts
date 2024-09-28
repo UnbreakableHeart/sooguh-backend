@@ -44,11 +44,13 @@ class ClothBoxStorage {
                             type: "Point",
                             coordinates: [lon, lat]
                         },
+                        $minDistance: 0,
                         $maxDistance: distance
                     }
                 }
             }).toArray();
             Logger.getInstance().info(`Successfully got cloth boxes`);
+            Logger.getInstance().info(docs.length);
             return docs;
         } catch (err) {
             Logger.getInstance().error(`Failed to get cloth boxes: ${err}`);
