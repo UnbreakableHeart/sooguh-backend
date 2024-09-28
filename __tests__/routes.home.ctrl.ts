@@ -4,15 +4,27 @@ import ClothBox from "../app/src/models/ClothBox";
 
 jest.mock("../app/src/models/ClothBox");
 
+interface CustomRequest extends Request {
+    coordinates?: {
+        lon: number;
+        lat: number;
+    };
+    distance?: number;
+}
+
 describe("HomeController", () => {
-    let req: Partial<Request>;
+    let req: Partial<CustomRequest>;
     let res: Partial<Response>;
     let jsonMock: jest.Mock;
     let statusMock: jest.Mock;
 
     beforeEach(() => {
         req = {
-            body: { key: "value" }
+            coordinates: {
+                lon: 127.109457691,
+                lat: 37.510190298
+            },
+            distance: 5000
         };
         jsonMock = jest.fn();
         statusMock = jest.fn(() => ({ json: jsonMock }));

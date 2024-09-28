@@ -6,12 +6,20 @@ jest.mock("../app/src/models/ClothBoxStorage");
 describe("ClothBox", () => {
     let clothBox: ClothBox;
     let mockClothBoxStorage: any;
+    let mockBody: any;
 
     beforeEach(() => {
         mockClothBoxStorage = {
             getClothBoxes: jest.fn(),
         };
         (ClothBoxStorage.getInstance as jest.Mock).mockReturnValue(mockClothBoxStorage);
+        mockBody = {
+            coordinates: {
+                lat: 37.162720658936784,
+                lon: 127.11264145768898,
+            },
+            distance: 3000,
+        };
     });
 
     afterEach(() => {
@@ -19,12 +27,6 @@ describe("ClothBox", () => {
     });
 
     it("search for cloth boxes and return a formatted response", async () => {
-        const mockBody = {
-            lat: 37.162720658936784,
-            lon: 127.11264145768898,
-            distance: 3000,
-        };
-
         const mockClothBoxes = [
             { _id: "1", address: "Address 1", location: { coordinates: [127.11264145768898, 37.162720658936784] } },
             { _id: "2", address: "Address 2", location: { coordinates: [127.11264145768898, 37.162720658936784] } },
@@ -44,11 +46,6 @@ describe("ClothBox", () => {
     });
 
     it("handle errors when searching for cloth boxes", async () => {
-        const mockBody = {
-            lat: 37.162720658936784,
-            lon: 127.11264145768898,
-            distance: 3000,
-        };
         const mockError = new Error("Test Error");
         mockClothBoxStorage.getClothBoxes.mockRejectedValue(mockError);
         clothBox = new ClothBox(mockBody);
@@ -59,11 +56,6 @@ describe("ClothBox", () => {
     });
 
     it("return empty array when no cloth boxes are found", async () => {
-        const mockBody = {
-            lat: 37.162720658936784,
-            lon: 127.11264145768898,
-            distance: 3000,
-        };
         mockClothBoxStorage.getClothBoxes.mockResolvedValue([]);
         clothBox = new ClothBox(mockBody);
 
@@ -73,11 +65,6 @@ describe("ClothBox", () => {
     });
 
     it("return cloth boxes within the specified distance", async () => {
-        const mockBody = {
-            lat: 37.162720658936784,
-            lon: 127.11264145768898,
-            distance: 3000,
-        };
         const mockClothBoxes = [
             { _id: "1", address: "Address 1", location: { coordinates: [127.11264145768898, 37.162720658936784] } },
             { _id: "2", address: "Address 2", location: { coordinates: [127.11264145768898, 37.162720658936784] } },
