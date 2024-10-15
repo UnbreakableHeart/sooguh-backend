@@ -34,7 +34,7 @@ class App{
     private initRoutes(){
         const home = new HomeRouter().getRouter();
         this.application.use("/", home);
-        this.application.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJson));
+        this.application.use("/api-docs", cors(corsOptions), swaggerUI.serve, swaggerUI.setup(swaggerJson));
     };
 
     public getApplication(): express.Application{

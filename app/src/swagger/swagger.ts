@@ -12,8 +12,9 @@ const doc = {
     },
     servers: [
         {
-            url: "http://localhost:"+PORT.toString(),
-        },
+            url: "http://" + process.env.SERVER_IP + ":" + PORT.toString()
+        }
+            
     ],
     schemes: ["http"],
     securityDefinitions: {
