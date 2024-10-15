@@ -6,6 +6,7 @@ import DatabaseSingleton from "./src/config/db";
 import swaggerUI from 'swagger-ui-express';
 import swaggerJson from "./src/swagger/swagger-output.json";
 import cors from 'cors';
+import corsOptions from "./src/config/cors";
 
 const logger = Logger.getInstance();
 class App{
@@ -26,7 +27,7 @@ class App{
     private initMiddleware(){
         this.application.use(express.json());
         this.application.use(express.urlencoded({extended: true}));
-        this.application.use(cors());
+        this.application.use(cors(corsOptions));
         
     };
 
